@@ -37,3 +37,37 @@ Example usage:
 
 ?>
 ```
+
+or
+
+```php
+<?php
+  namespace Test\Test;
+  require('vendor/autoload.php');
+  use Hvolschenk\Utils\Compose;
+
+  class Tester {
+
+    public static function circumference($radius) {
+      return Compose::compose(
+        $radius,
+        Compose::addClassNames('Test\Test\Tester', ['multiply', 'pi'])
+      );
+    }
+
+    public static function multiply(int $number) {
+      return $number * 2;
+    }
+
+    public static function pi(int $number) {
+      return $number * 3.14;
+    }
+
+  }
+
+  $tester = new Tester();
+  echo $tester->circumference(1); // 6.28
+  echo $tester->circumference(3); // 18.48
+
+?>
+```
