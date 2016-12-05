@@ -1,73 +1,71 @@
 # Compose
-PHP function composition class
+PHP function composition
 
-Example usage:
+The composition can either be run directly from the static method or used as a trait in a class.
+
+### Directly
 
 ```php
 <?php
   namespace Test\Test;
   require('vendor/autoload.php');
-  use Hvolschenk\Utils\Compose;
 
-  class Tester {
-
-    public static function go() {
-      return Compose::compose(
-        'Result: ',
-        Compose::addClassNames('Test\Test\Tester', ['addA', 'addB', 'addC'])
-      );
-    }
-
-    public static function addA(string $string) {
-      return "{$string}a";
-    }
-
-    public static function addB(string $string) {
-      return "{$string}b";
-    }
-
-    public static function addC(string $string) {
-      return "{$string}c";
-    }
-
+  function addA(string $string) {
+    return "{$string}a";
   }
 
-  $tester = new Tester();
-  echo $tester->go(); // Result: abc
+  function addB(string $string) {
+    return "{$string}b";
+  }
 
+  function addC(string $string) {
+    return "{$string}c";
+  }
+
+  echo Hvolschenk\Utils\Compose\Compose::compose('Value',
+    ['addA', 'addB', 'addC']); // ValueABC
 ?>
 ```
 
-or
+### As a trait
 
 ```php
 <?php
-  namespace Test\Test;
-  require('vendor/autoload.php');
-  use Hvolschenk\Utils\Compose;
+  class StringAdder {
+    use \Hvolschenk\Traits\Compose;
 
-  class Tester {
+    private $value;
 
-    public static function circumference($radius) {
-      return Compose::compose(
-        $radius,
-        Compose::addClassNames('Test\Test\Tester', ['multiply', 'pi'])
-      );
+    public function __construct(string $value) {
+      $this->setValue($value);
     }
 
-    public static function multiply(int $number) {
-      return $number * 2;
+    public function getValue(): string {
+      return $this->value;
     }
 
-    public static function pi(int $number) {
-      return $number * 3.14;
+    private function setValue(string $value) {
+      $this->value = self::composeValue($value);
     }
 
+    private static function composeValue(string $value): string {
+      return self::compose($value, ['addA', 'addB', 'addC']);
+    }
+
+    private static function addA(string $string) {
+      return "{$string}a";
+    }
+
+    private static function addB(string $string) {
+      return "{$string}b";
+    }
+
+    private static function addC(string $string) {
+      return "{$string}c";
+    }
   }
 
-  $tester = new Tester();
-  echo $tester->circumference(1); // 6.28
-  echo $tester->circumference(3); // 18.48
-
+  $stringAdder = new StringAdder('Value');
+  echo $stringAdder->getValue(); // ValueABC
 ?>
 ```
